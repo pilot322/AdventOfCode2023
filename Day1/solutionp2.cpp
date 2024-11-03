@@ -1,6 +1,5 @@
 #include <iostream>
 #include <fstream>
-#include <vector>
 #include <unordered_map>
 
 using namespace std;
@@ -45,17 +44,15 @@ int searchKey(TrieNode* root, const string& key){
     string temp;
 
     for(char c : key){
-        if(root->child[c-'a'] == nullptr){
-            break;
-        }
         temp += c;
         root = root->child[c-'a'];
-    }
-    
-    if(text_to_int.find(temp) != text_to_int.end()){
-        return text_to_int[temp];
-    }
+        
+        if(root == nullptr) break;
 
+        if(root->wordEnd){
+            return text_to_int[temp];
+        }
+    }
     return 0;
 }
 
@@ -66,9 +63,11 @@ int first_digit(string &buf, TrieNode* root){
         }
 
         string temp;
-        for(int j = 0; j < 5 - (i - 5 < buf.length()? 0 : buf.length() - i );j++){
-           temp += buf[buf.length()-i + j]; 
+        for(int j = 0; j < 5; j++){
+            if(i+j>=buf.length()) break;
+            temp += buf[i + j]; 
         }
+        
         int result = searchKey(root, temp);
 
         if(result) return result;
@@ -82,11 +81,12 @@ int last_digit(string &buf, TrieNode* root){
             return buf[i] - '0';
         }
         string temp;
-        for(int j = 0; j < 5 - (i - 5 < buf.length()? 0 : buf.length() - i );j++){
-           temp += buf[buf.length()-i + j]; 
+        for(int j = 0; j < 5; j++){
+            if(i+j>=buf.length()) break;
+            temp += buf[i + j]; 
         }
-        if(searchKey(root, temp)) return true;
-
+        int result = searchKey(root, temp);
+        if(result) return result;
 
      } 
         
@@ -106,13 +106,20 @@ int main(){
     insertKey(trie_root, "seven");
     insertKey(trie_root, "eight");
     insertKey(trie_root, "nine");
+    
+    text_to_int["one"] = 1;
+    text_to_int["two"] = 2;
+    text_to_int["three"] = 3;
+    text_to_int["four"] = 4;
+    text_to_int["five"] = 5;
+    text_to_int["six"] = 6;
+    text_to_int["seven"] = 7;
+    text_to_int["eight"] = 8;
+    text_to_int["nine"] = 9;
     int sum = 0;
-        
+    
     while(getline(input, buf)){
-        // find first digit
-        //
         int n = first_digit(buf, trie_root) * 10 + last_digit(buf, trie_root);
-        cout << n << endl;
         sum += n;
     }
     
